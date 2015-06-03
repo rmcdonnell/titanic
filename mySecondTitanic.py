@@ -35,15 +35,6 @@ def age_range(input):
         if input == 20 or input == 30:  return 'Youth'
         if input == 0  or input == 10:  return 'Child'
     else:                               return 'AgeRange'
-    
-
-def dict_eval(input_data, col_of_interest, input_dict):
-    for n in range( len(input_data)):
-        temp = ''.join(input_data[n][col_of_interest])
-        try:
-            input_dict[temp] += 1
-        except:
-            pass
 
 def family_count(input):
     if input[SibSp].isdigit():
