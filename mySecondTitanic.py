@@ -20,18 +20,22 @@ Date : 30 May 2015
 
 
 
+# 'PassengerId', 'Survived', 'Pclass', 'Name','Sex', 'Age', 'SibSp', 'Parch',
+# 'Ticket', 'Fare', 'Cabin', 'Embarked', 'AgeRange', 'FamilyCount'  
+
 ############## New Model
 
+# Imported Packages
 import csv as csv
-#import numpy as np
 
+# Methods
 def age_range(input, interval):
-    input = input[Age]
+    input =     input[Age]
     if input.isdigit():
-        age = int(input)
-        input =  (age/interval)*interval
-        return input
-    else:                               return 'AgeRange'
+        #age =   int(input)
+        input = int(input)/interval * interval
+        return  input
+    else:       return 'AgeRange'
 
 def family_count(input):
     if input[SibSp].isdigit():
@@ -39,55 +43,62 @@ def family_count(input):
             temp = int( input[SibSp]) + int(input[ Parch])
             return str( temp)
     else: return 'FamilyCount'
-    
-csv_file_object = csv.reader(open('train.csv', 'rb'))
 
-data=[]
+# Variables
+data = []
 survival_set = []
+output_data = []
 survived_dict = {}
 not_survived_dict = {}
 eval_survival_dict = {}
-interval = 20
 
+# Create a csv_file_object to be read into a list of lists (2D matrix), data.
+csv_file_object = csv.reader(open('train.csv', 'rb'))
 for row in csv_file_object:
     data.append(row)
 
-# 'PassengerId', 'Survived', 'Pclass', 'Name','Sex', 'Age', 'SibSp', 'Parch',
-# 'Ticket', 'Fare', 'Cabin', 'Embarked', 'AgeRange', 'FamilyCount'  
-    
+# Below is s list of the variable column positions for convenience.
 number_on_board = float( len( data)-1)
-PassengerId = data[0].index('PassengerId')  ###
-Survived    = data[0].index('Survived')
-Pclass      = data[0].index('Pclass')
-Name        = data[0].index('Name')         ###
-Sex         = data[0].index('Sex')
-Age         = data[0].index('Age')
-SibSp       = data[0].index('SibSp')
-Parch       = data[0].index('Parch')
-Ticket      = data[0].index('Ticket')       ###
-Fare        = data[0].index('Fare')         ###
-Cabin       = data[0].index('Cabin')        ###
-Embarked    = data[0].index('Embarked')     ###
+PassengerId = data[0].index('PassengerId') # An int which id's the passenger
+Survived    = data[0].index('Survived')    # (0 = No; 1 = Yes)
+Pclass      = data[0].index('Pclass')      # (1 = 1st; 2 = 2nd; 3 = 3rd)
+Name        = data[0].index('Name')        # String, name of passenger
+Sex         = data[0].index('Sex')         # String, male or female
+Age         = data[0].index('Age')         # An int for the passenger's age
+SibSp       = data[0].index('SibSp')       # Number of Siblings/Spouses Aboard
+Parch       = data[0].index('Parch')       # Number of Parents/Children Aboard
+Ticket      = data[0].index('Ticket')      # Ticket Number
+Fare        = data[0].index('Fare')        # Passenger Fare ($)
+Cabin       = data[0].index('Cabin')       # Cabin
+Embarked    = data[0].index('Embarked')    # (C = Cherbourg; Q = Queenstown; 
+                                           #  S = Southampton)
+
+# altering
+interval = 30
+for row in data:
+    if row[Age].isdigit():
+        row.append( int(row[Age])/interval * interval)
+    else: row.append( 'AgeRange')
+    if row[SibSp].isdigit():
+        if row[Parch].isdigit():
+            temp = int( row[SibSp]) + int(row[ Parch])
+            row.append( str( temp))
+        else: pass
+    else: row.append( 'FamilyCount')
+    if row[ Survived ].isdigit():
+        row[ Survived ] =  bool( int( row[ Survived ]))
     
-for row in range( len( data)):
-    if data[row][Survived] == '1':  
-        data[row][Survived] = True
-    if data[row][Survived] == '0':  
-        data[row][Survived] = False
-    age = age_range( data[row], interval = 30)
-    data[row].append( age)
-    data[row].append( family_count( data[row]))
-AgeRange    = data[0].index('AgeRange')
-FamilyCount = data[0].index('FamilyCount')
+    
+AgeRange    = data[ 0 ].index( 'AgeRange' )
+FamilyCount = data[ 0 ].index( 'FamilyCount' )
 
 hash_variables = [Sex, AgeRange, FamilyCount]
-# [Pclass, Sex, AgeRange, FamilyCount]
 
 for rows in data:
     temp = []
+    has_not_died = rows[Survived]
     for element in hash_variables:
         temp.append(rows[element])
-    has_not_died = rows[Survived]
     temp = tuple(temp)
     if has_not_died:
         if survived_dict.has_key(temp):
@@ -122,10 +133,10 @@ for h,i in eval_survival_dict.items():
         eval_survival_dict[h] = True
     if i == -1:
         eval_survival_dict[h] = False
-#print eval_survival_dict
-print "Can't categorize", int(hash_fail/float(len(data))*1000)/10.0,'% of entries'
-#print len( )
-output_data = []
+
+percent_error =  int(hash_fail/float(len(data))*1000)/10.0
+print "Can't categorize", percent_error, '% of entries'
+
 effectiveness = 0.0
 for index in data:
     output_data.append(PassengerId)
@@ -136,7 +147,6 @@ for index in data:
     temp = tuple(temp)
     if eval_survival_dict.has_key(temp):
         test = has_not_died == eval_survival_dict[temp]
-        #print test
         effectiveness += int(test)
         
 print "Effectiveness:",int(effectiveness/float(len(data))*1000)/10.0,"%"
