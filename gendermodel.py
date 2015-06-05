@@ -70,7 +70,7 @@ header = test_file_object.next()
 predictions_file = open("gendermodel.csv", "wb")
 predictions_file_object = csv.writer(predictions_file)
 predictions_file_object.writerow(["PassengerId", # write the column headers
-                                 "Survived"]
+                                 "Survived"])
 for row in test_file_object:                     # For each row in test file,
     if row[3] == 'female':                       # is it a female, if yes then
         predictions_file_object.writerow([row[0],# write the PassengerId, and

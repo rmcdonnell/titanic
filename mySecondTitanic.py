@@ -27,14 +27,23 @@ Date : 30 May 2015
 
 # Imported Packages
 import csv as csv
+import pandas
+
 # Methods
-def age_range(input, interval):
-    input =     input[Age]
-    if input.isdigit():
+def age_range(data, interval):
+#    if input instanceof List:
+    if data.isinstance(list) and data.isdigit():
+        age =     data[Age]
+    else:
+        return 'AgeRange'
+    if data.isinstance(int) or data.isinstance(float):
+        age = data
         #age =   int(input)
-        input = int(input)/interval * interval
-        return  input
-    else:       return 'AgeRange'
+    if type(data) == pandas.core.series.Series:
+        age = train_df['Age'][]
+        
+    adj_age = int(age)/interval * interval
+    return  adj_age
 
 def family_count(input):
     if input[SibSp].isdigit():
@@ -51,7 +60,7 @@ not_survived_dict = {}
 eval_survival_dict = {}
 
 # Create a csv_file_object to be read into a list of lists (2D matrix), data.
-csv_file_object = csv.reader(open('test.csv', 'rb'))
+csv_file_object = csv.reader(open('train.csv', 'rb'))
 for row in csv_file_object:
     data.append(row)
 
@@ -266,8 +275,8 @@ for index in data:
     else:
         test = has_not_died == eval_survival_dict[ temp]
         new_point.append( int(test))
-    if test:
-        effectiveness += increment
+        if test:
+            effectiveness += increment
     output_data.append(new_point)
 
 print "Can't categorize", pct_error, '% of entries\n'
