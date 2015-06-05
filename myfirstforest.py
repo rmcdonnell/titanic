@@ -8,9 +8,7 @@ please see packages.python.org/milk/randomforests.html for more
 import pandas as pd
 import numpy as np
 import csv as csv
-import math
 from sklearn.ensemble import RandomForestClassifier
-#from mySecondTitanic import age_range
 
 # Data cleanup
 # TRAIN DATA
@@ -71,7 +69,6 @@ median_age = test_df['Age'].dropna().median()
 if len(test_df.Age[ test_df.Age.isnull() ]) > 0:
     test_df.loc[ (test_df.Age.isnull()), 'Age'] = median_age
 train_df['Age'] = train_df['Age']//5*5
-#train_df.loc[:,'AgeRange'] = pd.Series(train_df['Age']//5*5,index=train_df.index)
 
 # All the missing Fares -> assume median of their respective class
 if len(test_df.Fare[ test_df.Fare.isnull() ]) > 0:
