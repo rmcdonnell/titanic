@@ -79,10 +79,13 @@ passenger_count = float(len(data))
 for row in data:
     if row[ PassengerId].isdigit(): 
         row[ PassengerId] = int( row[ PassengerId])       # PassengerId -> int
+        
     if row[ Survived].isdigit():
         row[ Survived] =  bool( int( row[ Survived]))     # Survived -> bool
+        
     if row[ Pclass].isdigit():
         row[ Pclass] = int( row[ Pclass])                 # Pclass -> int
+        
     if row[ Age].isdigit(): 
         row[ Age] = int( row[ Age])                       # Age -> int
         # Create a new list element, AgeRange, which rounds down Age to the
@@ -92,6 +95,7 @@ for row in data:
         # If Age is not a number, then the string 'AgeRange' is put in its 
         # place. This is to give the column a identifying name.
         row.append( 'AgeRange')
+        
     if row[SibSp].isdigit() and row[Parch].isdigit():
         row[ SibSp] = int( row[ SibSp])                   # SibSp -> int
         row[ Parch] = int( row[ Parch])                   # Parch -> int
@@ -99,10 +103,13 @@ for row in data:
         # SibSp and Parch.
         temp = row[SibSp] + row[ Parch]
         row.append( str( temp))                           # FamilyCount -> int
+#        row[ SibSp] = bool( row[ SibSp])                   # SibSp -> int
+#        row[ Parch] = bool( row[ Parch])                   # Parch -> int
     else: 
         # If Age is not a number, then the string 'FamilyCount' is put in its 
         # place. This is to give the column a identifying name.
         row.append( 'FamilyCount')
+        
     if row[ Ticket].isdigit():
         row[ Ticket] = int( row[ Ticket])                 # Ticket -> int
     
@@ -163,16 +170,21 @@ for rows in data:
 # survival_dict[key] > not_survival_dict[key] ->  1
 # survival_dict[key] < not_survival_dict[key] -> -1
 # survival_dict[key] = not_survival_dict[key] ->  0
-test_dict = { 1:True, -1:False }    # Used in plase of if/else (or a switch)
-                                    # to given how the dictionaries compare,
-                                    # the boolean output specifies if the 
-                                    # individual was predicted to lived or die.
-pct_error = 0.0                     # The percent of keys that exist in one 
-                                    # dictionary but not in the other (ie key 
-                                    # exists in survival_dict but does not
-                                    # exist in not_survival_dict).
+test_dict = { 1:True, -1:False , 0:True}    # Used in plase of if/else (or a
+                                            #  switch) to given how the 
+                                            # dictionaries compare, the boolean
+                                            # output specifies if the 
+                                            # individual was predicted to lived
+                                            # or die.
+pct_error = 0.0                             # The percent of keys that exist in 
+                                            # one dictionary but not in the 
+                                            # other (ie key exists in 
+                                            # survival_dict but does not exist
+                                            # in not_survival_dict).
 increment = int( 1/passenger_count*10**signif)/float( 10**(signif-2)) 
-                                    # Rounded percent increment
+                                            # Rounded percent increment
+eval_survival_dict = survived_dict.copy()
+eval_survival_dict.update(not_survived_dict)
 for hashes in survived_dict.keys():
     try:
         temp = cmp( survived_dict[ hashes], not_survived_dict[ hashes])
@@ -183,23 +195,39 @@ for hashes in survived_dict.keys():
     else:
         pct_error += increment
 
+predicted_data = []
 effectiveness = 0.0                 # Initiated model effectiveness variable
+fail = 0.0
 for index in data:
-    output_data.append( index[ PassengerId])
+    new_point = []
+    new_point.append( index[ PassengerId])
     has_not_died = index[ Survived]
     temp = []
     for element in hash_variables:
         temp.append( index[ element])
     temp = tuple( temp)
-    if eval_survival_dict.has_key( temp):
+    if isinstance(index[ Survived], str):
+        new_point.append( 'Survived')
+    else:
         test = has_not_died == eval_survival_dict[ temp]
-        if test:
-            effectiveness += increment
+        new_point.append( int(test))
+    if test:
+        effectiveness += increment
+    output_data.append(new_point)
 
 print "Can't categorize", pct_error, '% of entries\n'
 # Can't categorize 1.0089 % of entries
 
 print "Effectiveness:", effectiveness, "%\n"
 # Effectiveness: 74.6586 %
-    
+
+print fail,'%'
+print fail + effectiveness
+
+with open("mcd_predict_titanic.csv", 'wb') as csvfile:
+    spamwriter = csv.writer(csvfile, delimiter=',',
+                            quotechar='"', 
+                            quoting=csv.QUOTE_MINIMAL)
+    for out_row in output_data:
+        spamwriter.writerow(out_row)
     
