@@ -51,25 +51,61 @@ not_survived_dict = {}
 eval_survival_dict = {}
 
 # Create a csv_file_object to be read into a list of lists (2D matrix), data.
-csv_file_object = csv.reader(open('train.csv', 'rb'))
+csv_file_object = csv.reader(open('test.csv', 'rb'))
 for row in csv_file_object:
     data.append(row)
 
 # Below is s list of the variable column positions for convenience.
 number_on_board = float( len( data)-1)
-PassengerId = data[0].index('PassengerId')  # An int which id's the passenger
-Survived    = data[0].index('Survived')     # (0 = No; 1 = Yes)
-Pclass      = data[0].index('Pclass')       # (1 = 1st; 2 = 2nd; 3 = 3rd)
-Name        = data[0].index('Name')         # String, name of passenger
-Sex         = data[0].index('Sex')          # String, male or female
-Age         = data[0].index('Age')          # An int for the passenger's age
-SibSp       = data[0].index('SibSp')        # Number of Siblings/Spouses Aboard
-Parch       = data[0].index('Parch')        # Number of Parents/Children Aboard
-Ticket      = data[0].index('Ticket')       # Ticket Number
-Fare        = data[0].index('Fare')         # Passenger Fare ($)
-Cabin       = data[0].index('Cabin')        # Cabin
-Embarked    = data[0].index('Embarked')     # (C = Cherbourg; Q = Queenstown; 
+try:
+    PassengerId = data[0].index('PassengerId')  # An int which id's the passenger
+except:
+    pass
+try:
+    Survived    = data[0].index('Survived')     # (0 = No; 1 = Yes)
+except:
+    pass
+try:
+    Pclass      = data[0].index('Pclass')       # (1 = 1st; 2 = 2nd; 3 = 3rd)
+except:
+    pass
+try:
+    Name        = data[0].index('Name')         # String, name of passenger
+except:
+    pass
+try:
+    Sex         = data[0].index('Sex')          # String, male or female
+except:
+    pass
+try:
+    Age         = data[0].index('Age')          # An int for the passenger's age
+except:
+    pass
+try:
+    SibSp       = data[0].index('SibSp')        # Number of Siblings/Spouses Aboard
+except:
+    pass
+try:
+    Parch       = data[0].index('Parch')        # Number of Parents/Children Aboard
+except:
+    pass
+try:
+    Ticket      = data[0].index('Ticket')       # Ticket Number
+except:
+    pass
+try:
+    Fare        = data[0].index('Fare')         # Passenger Fare ($)
+except:
+    pass
+try:
+    Cabin       = data[0].index('Cabin')        # Cabin
+except:
+    pass
+try:
+    Embarked    = data[0].index('Embarked')     # (C = Cherbourg; Q = Queenstown; 
                                             #  S = Southampton)
+except:
+    pass
 interval = 30       # The interval between age groups 
                     # (i.e. interval = 5 -> [0,5,10,...])
 signif = 6
@@ -77,53 +113,72 @@ passenger_count = float(len(data))
 
 # Cleaning the data set.
 for row in data:
-    if row[ PassengerId].isdigit(): 
-        row[ PassengerId] = int( row[ PassengerId])       # PassengerId -> int
+    try:
+        if row[ PassengerId].isdigit(): 
+            row[ PassengerId] = int( row[ PassengerId])       # PassengerId -> int
+    except:
+        pass
         
-    if row[ Survived].isdigit():
-        row[ Survived] =  bool( int( row[ Survived]))     # Survived -> bool
+    try:
+        if row[ Survived].isdigit():
+            row[ Survived] =  bool( int( row[ Survived]))     # Survived -> bool
+    except:
+        pass
         
-    if row[ Pclass].isdigit():
-        row[ Pclass] = int( row[ Pclass])                 # Pclass -> int
-        
-    if row[ Age].isdigit(): 
-        row[ Age] = int( row[ Age])                       # Age -> int
+    try:
+        if row[ Pclass].isdigit():
+            row[ Pclass] = int( row[ Pclass])                 # Pclass -> int
+    except:
+        pass
+     
+    try:
+        if row[ Age].isdigit(): 
+            row[ Age] = int( row[ Age])                       # Age -> int
         # Create a new list element, AgeRange, which rounds down Age to the
         # nearest interval value.
-        row.append( int( row[ Age])/interval * interval)  # AgeRange -> int
-    else: 
+            row.append( int( row[ Age])/interval * interval)  # AgeRange -> int
+        else: 
         # If Age is not a number, then the string 'AgeRange' is put in its 
         # place. This is to give the column a identifying name.
-        row.append( 'AgeRange')
-        
-    if row[SibSp].isdigit() and row[Parch].isdigit():
-        row[ SibSp] = int( row[ SibSp])                   # SibSp -> int
-        row[ Parch] = int( row[ Parch])                   # Parch -> int
+            row.append( 'AgeRange')
+    except:
+        pass
+    try:
+        if row[SibSp].isdigit() and row[Parch].isdigit():
+            row[ SibSp] = int( row[ SibSp])                   # SibSp -> int
+            row[ Parch] = int( row[ Parch])                   # Parch -> int
         # Creates a new list element, FamilyCount, which is the sum of
         # SibSp and Parch.
-        temp = row[SibSp] + row[ Parch]
-        row.append( str( temp))                           # FamilyCount -> int
-#        row[ SibSp] = bool( row[ SibSp])                   # SibSp -> int
-#        row[ Parch] = bool( row[ Parch])                   # Parch -> int
-    else: 
+            temp = row[SibSp] + row[ Parch]
+            row.append( str( temp))                           # FamilyCount -> int
+        else: 
         # If Age is not a number, then the string 'FamilyCount' is put in its 
         # place. This is to give the column a identifying name.
-        row.append( 'FamilyCount')
-        
-    if row[ Ticket].isdigit():
-        row[ Ticket] = int( row[ Ticket])                 # Ticket -> int
+            row.append( 'FamilyCount')
+    except:
+        pass
+    
+    try:
+        if row[ Ticket].isdigit():
+            row[ Ticket] = int( row[ Ticket])                 # Ticket -> int
+    except:
+        pass
     
     # The .isdecimal() operation was giving me trouble, so I made this set of 
     # if/else blocks to assess what kind of number is in row[ Fare].
-    if row[ Fare].find('.') !=-1:
-        temp = row[ Fare].split( '.')
-        row[ Fare] = float( temp[0])                      # Fare -> float
-        row[ Fare] += float( temp[1])/10**len( temp[1])
-    else:
-        if row[ Fare].isdigit():
-            row[ Fare] = float( row[ Fare])               # Fare -> float
+    
+    try:
+        if row[ Fare].find('.') !=-1:
+            temp = row[ Fare].split( '.')
+            row[ Fare] = float( temp[0])                      # Fare -> float
+            row[ Fare] += float( temp[1])/10**len( temp[1])
         else:
-            pass
+            if row[ Fare].isdigit():
+                row[ Fare] = float( row[ Fare])               # Fare -> float
+            else:
+                pass
+    except:
+        pass
     
 AgeRange    = data[ 0].index( 'AgeRange')     # A variable specifying which 
                                               # list element is AgeRange.
@@ -222,7 +277,7 @@ print "Effectiveness:", effectiveness, "%\n"
 # Effectiveness: 74.6586 %
 
 print fail,'%'
-print fail + effectiveness
+print len(data)-418
 
 with open("mcd_predict_titanic.csv", 'wb') as csvfile:
     spamwriter = csv.writer(csvfile, delimiter=',',
