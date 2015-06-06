@@ -12,7 +12,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 # Data cleanup
 # TRAIN DATA
-train_df = pd.read_csv('data/train.csv', header=0)       # Load the train file into
+train_df = pd.read_csv('data/train.csv', header=0)  # Load the train file into
                                                     # a dataframe
 # I need to convert all strings to integer classifiers.
 # I need to fill in the missing values of the data and make it complete.
