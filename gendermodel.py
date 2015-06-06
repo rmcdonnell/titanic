@@ -10,9 +10,10 @@ Revised: 28 March 2014
 import csv as csv
 import numpy as np
 
-csv_file_object = csv.reader(open('data/train.csv', 'rb'))   # Load in the csv file
-header = csv_file_object.next()                         # Skip the fist line as
-                                                        # it is a header
+csv_file_object = csv.reader(open('data/train.csv', 'rb'))    # Load in the 
+                                                              # csv file
+header = csv_file_object.next()                           # Skip the fist line
+                                                          # as it is a header
 data=[] 					      # Create a variable to hold the data
 
 for row in csv_file_object: 		  # Skip through each row in the csv file,
@@ -67,7 +68,7 @@ header = test_file_object.next()
 # [3] (which is 'Sex')
 # Write out the PassengerId, and my prediction.
 
-predictions_file = open("results/gendermodel.csv", "wb")
+predictions_file = open("results/gendermodel1.csv", "wb")
 predictions_file_object = csv.writer(predictions_file)
 predictions_file_object.writerow(["PassengerId", # write the column headers
                                  "Survived"])
