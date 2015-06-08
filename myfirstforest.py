@@ -14,6 +14,7 @@ from sklearn.ensemble import RandomForestClassifier
 # TRAIN DATA
 train_df = pd.read_csv('data/train.csv', header=0)  # Load the train file into
                                                     # a dataframe
+print sum(train_df['Parch'].isnull())
 # I need to convert all strings to integer classifiers.
 # I need to fill in the missing values of the data and make it complete.
 
@@ -38,6 +39,26 @@ Ports_dict = { name : i for i, name in Ports }          # set up a dictionary
                                                         # index
 train_df.Embarked = train_df.Embarked.map(lambda x: Ports_dict[x]).astype(int)
                                             # Convert all Embark strings to int
+#print train_df.head()
+col_list = train_df.drop(['PassengerId','Survived','Pclass','Name','Sex'],
+                         axis=1) 
+col_list = col_list.drop(['Age','Ticket','Fare','Cabin','Embarked','Gender'],
+                         axis=1)
+train_df['Family'] = col_list.sum(axis=1)
+#
+#train_df['Family'] = train_df['Parch'] + train_df['SibSp']
+#if len(train_df.Ticket[ train_df.Ticket.isnull() ]) > 0:
+#    train_Ticket = train_df.Ticket.dropna(0)
+#    train_df.loc[ train_df.Ticket.isnull(), 'Ticket' ] = train_Ticket
+#    train_df.Embarked[ train_df.Embarked.isnull() ] = temp_Embarked
+
+#Tickets = list(enumerate(np.unique(train_df['Ticket'])))# determine all values
+                                                        # of Embarked,
+#Tickets_dict = { name : i for i, name in Tickets }          # set up a dictionary
+                                                        # in the form  Ports :
+                                                        # index
+#train_df.Ticket = train_df.Ticket.map(lambda x: Tickets_dict[x]).astype(int)
+                                            # Convert all Embark strings to int
 
 # All the ages with no data -> make the median of all Ages
 median_age = train_df['Age'].dropna().median()
@@ -47,7 +68,7 @@ train_df['Age'] = train_df['Age']//5*5
 
 # Remove the Name column, Cabin, Ticket, and Sex (since I copied and filled it
 # to Gender)
-train_df = train_df.drop(['Name', 'Sex', 'Ticket', 'Cabin', 'PassengerId'],
+train_df = train_df.drop(['Name', 'Sex','Cabin', 'Ticket', 'PassengerId'],
                          axis=1) 
 
 # TEST DATA
@@ -68,12 +89,17 @@ if len(test_df.Embarked[ test_df.Embarked.isnull() ]) > 0:
 # Again convert all Embarked strings to int
 test_df.Embarked = test_df.Embarked.map( lambda x: Ports_dict[x]).astype(int)
 
+col_list = test_df.drop(['PassengerId','Pclass','Name','Sex'],
+                         axis=1) 
+col_list = col_list.drop(['Age','Ticket','Fare','Cabin','Embarked','Gender'],
+                         axis=1)
+test_df['Family'] = col_list.sum(axis=1)
 
 # All the ages with no data -> make the median of all Ages
 median_age = test_df['Age'].dropna().median()
 if len(test_df.Age[ test_df.Age.isnull() ]) > 0:
     test_df.loc[ (test_df.Age.isnull()), 'Age'] = median_age
-train_df['Age'] = train_df['Age']//5*5
+test_df['Age'] = test_df['Age']//5*5
 
 # All the missing Fares -> assume median of their respective class
 if len(test_df.Fare[ test_df.Fare.isnull() ]) > 0:
@@ -89,8 +115,8 @@ if len(test_df.Fare[ test_df.Fare.isnull() ]) > 0:
 ids = test_df['PassengerId'].values
 # Remove the Name column, Cabin, Ticket, and Sex (since I copied and filled it
 # to Gender)
-test_df = test_df.drop(['Name', 'Sex', 'Ticket', 'Cabin', 'PassengerId'], 
-                       axis=1) 
+test_df = test_df.drop(['Name', 'Sex','Cabin', 'Ticket', 'PassengerId'],
+                         axis=1) 
 
 # The data is now ready to go. So lets fit to the train, then predict to the
 # test! Convert back to a numpy array.
