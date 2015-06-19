@@ -10,57 +10,69 @@ import numpy as np
 import csv as csv
 from sklearn.ensemble import RandomForestClassifier
 
+def Family(input_data):
+    input_data['Family'] = input_data['SibSp'] + input_data['Parch']
+    
+def AgeRange(input_data):
+    median_age = input_data['Age'].dropna().median()
+    if len(input_data.Age[ input_data.Age.isnull() ]) > 0:
+        input_data.loc[ (input_data.Age.isnull()), 'Age'] = median_age
+    input_data['AgeRange'] = (input_data['Age']%5)*5
+    
+def Gender(input_data):
+    mf_set = {'female': 0, 'male': 1}
+    input_data['Gender'] = input_data['Sex'].map( mf_set ).astype(int)
+    
+def AdjFare(input_data):
+    input_data['AdjFare'] = input_data['Fare']*100
+
 train_df = pd.read_csv('data/train.csv', header=0)
-#['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 
-# 'Ticket', 'Fare', 'Cabin', 'Embarked']
-
-train_df['Family'] = train_df['SibSp']+train_df['Parch']
-
-mf_set = {'female': 0, 'male': 1}
-train_df['Gender'] = train_df['Sex'].map( mf_set ).astype(int)
-
-median_age = train_df['Age'].dropna().median()
-if len(train_df.Age[ train_df.Age.isnull() ]) > 0:
-    train_df.loc[ (train_df.Age.isnull()), 'Age'] = median_age
-train_df['AgeRange'] = (train_df['Age']%5)*5
 
 test_df = pd.read_csv('data/test.csv', header=0)
-#['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 
-#'Ticket', 'Fare', 'Cabin', 'Embarked']
 
-test_df['Family'] = test_df['SibSp']+test_df['Parch']
-
-mf_set = {'female': 0, 'male': 1}
-test_df['Gender'] = test_df['Sex'].map( mf_set ).astype(int)
-
-median_age = test_df['Age'].dropna().median()
-if len(test_df.Age[ test_df.Age.isnull() ]) > 0:
-    test_df.loc[ (test_df.Age.isnull()), 'Age'] = median_age
-test_df['AgeRange'] = (test_df['Age']%5)*5
-
-train_df['Fare*100'] = train_df['Fare']*100
-test_df['Fare*100'] = test_df['Fare']*100
+Family(train_df)    ;   Family(test_df)
+AgeRange(train_df)  ;   AgeRange(test_df)
+Gender(train_df)    ;   Gender(test_df)
+AdjFare(train_df)   ;   AdjFare(test_df)
 
 ids = test_df['PassengerId'].values
+col_to_remove = [
+                'PassengerId',
+#                'Survived',
+                'Pclass',
+                'Name',
+                'Sex',
+                'Age',
+                'SibSp',
+                'Parch',
+                'Ticket',
+                'Fare',
+                'Cabin',
+                'Embarked',
+#                'Gender',
+#                'AgeRange',
+#                'Family',
+#                'AdjFare',
+                 ]
+answers = train_df['Survived']
+train_df =    train_df.drop(col_to_remove, axis=1)
+test_df =     test_df.drop( col_to_remove, axis=1)
 
-train_df =    train_df.drop(['PassengerId', 'Name', 'Sex', 'Age', 'Ticket', 'Cabin', \
-                             'Embarked','Fare'], axis=1)
-test_df =     test_df.drop( ['PassengerId', 'Name', 'Sex', 'Age', 'Ticket', 'Cabin', \
-                             'Embarked','Fare'], axis=1)
-print train_df.columns.values
-print test_df.columns.values
+print "\nThe following columns of the data set were used in the analysis:"
+print "\t'"+"',  '".join(test_df.columns.values)
 
 train_data = train_df.values.astype(int)
 test_data = test_df.values.astype(int)
-print train_data.dtype, test_data.dtype
+
 print 'Training...'
 forest = RandomForestClassifier(n_estimators=100)
-forest = forest.fit( train_data[0::,1::], train_data[0::,0::] )
+forest = forest.fit( train_data[0::,1::], train_data[0::,0] )
 
 print 'Predicting...'
-output = forest.predict(test_data).astype(int)
+output = forest.predict(test_data)
+output = output.astype(int)
 
-predictions_file = open("results/myfirstforest.csv", "wb")
+predictions_file = open("results/myAnalysisOfTitanicDS.csv", "wb")
 open_file_object = csv.writer(predictions_file)
 open_file_object.writerow(["PassengerId","Survived"])
 open_file_object.writerows(zip(ids, output))
