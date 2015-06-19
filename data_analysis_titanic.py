@@ -69,7 +69,7 @@ train_df =    train_df.drop( col_to_remove, axis=1)
 test_df  =    test_df.drop(  col_to_remove, axis=1)
 
 print "\nThe following columns of the data set were used in the analysis:"
-print "\t'"+"',  '".join( test_df.columns.values)
+print "\t'" + "',  '".join( test_df.columns.values)
 
 train_data = train_df.values.astype( int)
 test_data  = test_df.values.astype(  int)
