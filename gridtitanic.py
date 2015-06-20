@@ -24,7 +24,6 @@ y_train = train_df['Survived']
 y_test = None
 
 
-
 # Grid search stuff
 
 # specify parameters and distributions to sample from
@@ -88,8 +87,8 @@ ids      =   test_df['PassengerId'].values
 X_train =    X_train.drop( col_to_remove, axis=1).fillna(0)
 X_test  =    X_test.drop(  col_to_remove, axis=1).fillna(0)
 
-#print "\nThe following columns of the data set were used in the analysis:"
-#print "\t'" + "',  '".join( test_df.columns.values)
+print "\nThe following columns of the data set were used in the analysis:"
+print "\t'" + "',  '".join( test_df.columns.values)
 
 print 'Training...'
 forest = RandomForestClassifier( n_estimators=100)
