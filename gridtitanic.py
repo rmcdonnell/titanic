@@ -5,12 +5,13 @@ import time
 import csv
 from operator import itemgetter
 from scipy.stats import randint as sp_randint
-
 import numpy as np
 import pandas as pd
 
 from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
+from sklearn.datasets import load_digits
 from sklearn.ensemble import RandomForestClassifier
+
 
 #Creates a Family column which is the sum of siblings, spouces, parents and 
 #children aboard who are related to the individual.
@@ -52,12 +53,13 @@ def Embarking( input_data):
 
 #Read the data sets
 train_df = pd.read_csv( 'data/train.csv', header=0)
-test_df = pd.read_csv(  'data/test.csv',  header=0)
+test_df  = pd.read_csv( 'data/test.csv',  header=0)
 
+ids     = test_df['PassengerId'].values
 X_train = train_df.ix[:,'Pclass':]
-X_test = test_df.ix[:,'Pclass':]
+X_test  = test_df.ix[:,'Pclass':]
 y_train = train_df['Survived']
-y_test = None
+y_test  = None
 
 
 # Grid search stuff
@@ -98,32 +100,96 @@ col_to_remove = [
 #                'ComingFrom',
                  ]
 
-ids      =   test_df['PassengerId'].values
 X_train =    X_train.drop( col_to_remove, axis=1).fillna(0)
 X_test  =    X_test.drop(  col_to_remove, axis=1).fillna(0)
 
 print "\nThe following columns of the data set were used in the analysis:"
 print "\t'" + "',  '".join( X_test.columns.values) + "'"
 
-print 'Training...'
-forest = RandomForestClassifier( n_estimators=100)
+# get some data
+iris = load_digits()
+X, y = iris.data, iris.target
+print len( X[0]), y
+# build a classifier
+clf = RandomForestClassifier(n_estimators=20)
 
-print 'Randomized search'
+
+# Utility function to report best scores
+def report(grid_scores, n_top=3):
+    top_scores = sorted(grid_scores, key=itemgetter(1), reverse=True)[:n_top]
+    for i, score in enumerate(top_scores):
+        print("Model with rank: {0}".format(i + 1))
+        print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
+              score.mean_validation_score,
+              np.std(score.cv_validation_scores)))
+        print("Parameters: {0}".format(score.parameters))
+        print("")
+
+
+# specify parameters and distributions to sample from
+param_dist = {"max_depth": [3, None],
+              "max_features": sp_randint(1, 11),
+              "min_samples_split": sp_randint(1, 11),
+              "min_samples_leaf": sp_randint(1, 11),
+              "bootstrap": [True, False],
+              "criterion": ["gini", "entropy"]}
+
+# run randomized search
 n_iter_search = 20
-random_search = RandomizedSearchCV(estimator            = forest, 
-                                   param_distributions  = param_dist,
-                                   n_iter               = n_iter_search)
-#print dir(random_search)
-#print X_train
-#random_search.fit(X_test)
-forest = random_search.fit( X_train.values, y=y_train.values)
+random_search = RandomizedSearchCV(clf, param_distributions=param_dist,
+                                   n_iter=n_iter_search)
 
-print 'Predicting...'
-y_test = forest.predict(X_test)
+start = time()
+random_search.fit(X, y)
+print("RandomizedSearchCV took %.2f seconds for %d candidates"
+      " parameter settings." % ((time() - start), n_iter_search))
+report(random_search.grid_scores_)
 
-predictions_file = open( "results/20150620_6_prediction_result.csv", "wb")
-open_file_object = csv.writer( predictions_file)
-open_file_object.writerow( [ "PassengerId","Survived" ])
-open_file_object.writerows( zip( ids, y_test))
-predictions_file.close()
-print 'Done.'
+# use a full grid over all parameters
+param_grid = {"max_depth": [3, None],
+              "max_features": [1, 3, 10],
+              "min_samples_split": [1, 3, 10],
+              "min_samples_leaf": [1, 3, 10],
+              "bootstrap": [True, False],
+              "criterion": ["gini", "entropy"]}
+
+# run grid search
+grid_search = GridSearchCV(clf, param_grid=param_grid)
+start = time()
+grid_search.fit(X, y)
+
+print("GridSearchCV took %.2f seconds for %d candidate parameter settings."
+      % (time() - start, len(grid_search.grid_scores_)))
+report(grid_search.grid_scores_)
+#
+#print 'Training...'
+#forest = RandomForestClassifier( n_estimators=100)
+#
+#print 'Randomized search'
+#n_iter_search = 20
+##random_search = RandomizedSearchCV(estimator            = forest, 
+##                                   param_distributions  = param_dist,
+##                                   n_iter               = n_iter_search)
+##newstuff = random_search.fit( X_train.values, y=y_train.values)
+#a = 0.0#newstuff.score( X_train.values, y=y_train.values)
+#b = 0.0
+#while a >= b:
+#    n_iter_search += 2
+#    b = a
+#    random_search = RandomizedSearchCV(estimator            = forest, 
+#                                       param_distributions  = param_dist,
+#                                       n_iter               = n_iter_search)
+#    newstuff = random_search.fit( X_train.values, y=y_train.values)
+#    a = newstuff.score( X_train.values, y=y_train.values)
+#    print 'a=',a,'b=',b,'n_iter_search=',n_iter_search
+#print newstuff.get_params()
+#
+#print 'Predicting...'
+#y_test = newstuff.predict(X_test)
+#
+#predictions_file = open( "results/20150620_8_prediction_result.csv", "wb")
+#open_file_object = csv.writer( predictions_file)
+#open_file_object.writerow( [ "PassengerId","Survived" ])
+#open_file_object.writerows( zip( ids, y_test))
+#predictions_file.close()
+#print 'Done.'
